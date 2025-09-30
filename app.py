@@ -125,13 +125,12 @@ def feedback(session_id: str):
     return result
 
 @app.get("/download_report")
-def download_report(session_id: str):
+def download_report(session_id: str, user_name: str = "", user_email: str = "", user_company: str = "", user_position: str = ""):
     """Generate and return a detailed PDF report"""
     if session_id not in sessions:
         return {"error": "Session not found"}
     
     session = sessions[session_id]
-    feedback_data = feedback(session_id)
     
     # Create temporary file
     temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
@@ -154,18 +153,44 @@ def download_report(session_id: str):
     story.append(Paragraph("Excel Skills Assessment Report", title_style))
     story.append(Spacer(1, 0.2*inch))
     
-    # Date and performance summary
+    # Date and Candidate Information
     date_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    story.append(Paragraph(f"Assessment Date: {date_str}", styles["Normal"]))
+    story.append(Paragraph(f"<b>Assessment Date:</b> {date_str}", styles["Normal"]))
     story.append(Spacer(1, 0.1*inch))
+    
+    # Candidate Details
+    story.append(Paragraph("Candidate Information", styles["Heading2"]))
+    candidate_data = [
+        ["Name", user_name or "Not Provided"],
+        ["Email", user_email or "Not Provided"],
+        ["Company", user_company or "Not Provided"],
+        ["Position", user_position or "Not Provided"]
+    ]
+    candidate_table = Table(candidate_data, colWidths=[1.5*inch, 4*inch])
+    candidate_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    story.append(candidate_table)
+    story.append(Spacer(1, 0.3*inch))
+       
+    # Calculate performance metrics
+    total_possible = len(session["answers"]) * 3
+    percentage = (session["score"] / total_possible) * 100 if total_possible > 0 else 0
     
     # Performance Summary
     story.append(Paragraph("Performance Summary", styles["Heading2"]))
     summary_data = [
-        ["Overall Score", f"{feedback_data['score']}/{feedback_data['total_possible']}"],
-        ["Percentage", f"{feedback_data['percentage']}%"],
-        ["Performance Level", feedback_data['performance']],
-        ["Questions Answered", str(feedback_data['questions_answered'])]
+        ["Overall Score", f"{session['score']}/{total_possible}"],
+        ["Percentage", f"{percentage:.1f}%"],
+        ["Questions Answered", str(len(session["answers"]))],
+        ["Session ID", session_id[:8]]
     ]
     summary_table = Table(summary_data, colWidths=[2*inch, 3*inch])
     summary_table.setStyle(TableStyle([
@@ -181,86 +206,3 @@ def download_report(session_id: str):
     story.append(summary_table)
     story.append(Spacer(1, 0.3*inch))
     
-    # Strengths and Weaknesses
-    col_widths = [2.75*inch, 2.75*inch]
-    sw_data = [
-        ["Strengths", "Areas for Improvement"],
-        [feedback_data['strengths'], feedback_data['weaknesses']]
-    ]
-    sw_table = Table(sw_data, colWidths=col_widths)
-    sw_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.darkgreen),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (0, 1), colors.lightgreen),
-        ('BACKGROUND', (1, 1), (1, 1), colors.mistyrose),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('VALIGN', (0, 0), (-1, -1), 'TOP')
-    ]))
-    story.append(sw_table)
-    story.append(Spacer(1, 0.3*inch))
-    
-    # Detailed Question Analysis
-    story.append(Paragraph("Detailed Question Analysis", styles["Heading2"]))
-    story.append(Spacer(1, 0.1*inch))
-    
-    for i, answer in enumerate(session["answers"], 1):
-        # Question header
-        story.append(Paragraph(f"Question {i} ({answer['level'].title()})", styles["Heading3"]))
-        story.append(Paragraph(f"<b>Question:</b> {answer['q']}", styles["Normal"]))
-        story.append(Paragraph(f"<b>Your Answer:</b> {answer['a']}", styles["Normal"]))
-        
-        # Score details
-        score_data = [
-            ["Evaluation Metric", "Score"],
-            ["AI Assessment Score", f"{answer['gemini_score']}/3"],
-            ["Keyword Match Score", f"{answer['keyword_score']}/{len(session['questions'][i-1]['keywords'])}"],
-            ["Total Score", f"{answer['total_score']}/3"]
-        ]
-        score_table = Table(score_data, colWidths=[2*inch, 1.5*inch])
-        score_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
-        ]))
-        story.append(score_table)
-        
-        # Reasoning
-        story.append(Paragraph(f"<b>Evaluation Reasoning:</b> {answer['reasoning']}", styles["Normal"]))
-        story.append(Spacer(1, 0.2*inch))
-    
-    # Recommendations
-    story.append(Paragraph("Recommendations for Improvement", styles["Heading2"]))
-    story.append(Paragraph(feedback_data['recommendation'], styles["Normal"]))
-    story.append(Spacer(1, 0.1*inch))
-    
-    # Specific recommendations based on performance
-    if feedback_data['percentage'] < 60:
-        rec_text = """
-        • Practice basic Excel functions daily
-        • Work on real-world Excel projects
-        • Focus on VLOOKUP, PivotTables, and conditional formatting
-        • Consider taking an Excel fundamentals course
-        """
-    else:
-        rec_text = """
-        • Explore advanced Excel features like Power Query
-        • Practice with complex formulas and array functions
-        • Learn data analysis and visualization techniques
-        • Work on optimization and automation with macros
-        """
-    
-    story.append(Paragraph(rec_text, styles["Normal"]))
-    
-    # Build PDF
-    doc.build(story)
-    
-    return FileResponse(
-        pdf_path, 
-        media_type='application/pdf',
-        filename=f"Excel_Assessment_Report_{session_id[:8]}.pdf"
-    )
