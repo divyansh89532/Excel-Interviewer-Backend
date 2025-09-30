@@ -1,0 +1,127 @@
+[
+  {
+    "level": "beginner",
+    "question": "What does the SUM function do in Excel?",
+    "keywords": ["sum", "add", "range", "numbers"]
+  },
+  {
+    "level": "beginner",
+    "question": "How can you quickly autofill a series of numbers or dates in Excel?",
+    "keywords": ["autofill", "drag", "handle", "fill series"]
+  },
+  {
+    "level": "beginner",
+    "question": "What is the difference between relative and absolute cell references in Excel?",
+    "keywords": ["relative", "absolute", "cell reference", "dollar sign", "$"]
+  },
+  {
+    "level": "beginner",
+    "question": "How do you freeze panes in Excel and why is it useful?",
+    "keywords": ["freeze panes", "headers", "scroll", "view"]
+  },
+  {
+    "level": "beginner",
+    "question": "What is the purpose of the AVERAGE function in Excel?",
+    "keywords": ["average", "mean", "numbers", "calculation"]
+  },
+  {
+    "level": "beginner",
+    "question": "How do you create a basic chart or graph in Excel?",
+    "keywords": ["chart", "graph", "insert", "visualize"]
+  },
+  {
+    "level": "beginner",
+    "question": "What is the quickest way to select an entire column or row in Excel?",
+    "keywords": ["select", "column", "row", "shortcut"]
+  },
+  {
+    "level": "intermediate",
+    "question": "Explain how the VLOOKUP function works in Excel.",
+    "keywords": ["lookup_value", "table_array", "col_index_num", "range_lookup"]
+  },
+  {
+    "level": "intermediate",
+    "question": "When would you use INDEX-MATCH instead of VLOOKUP?",
+    "keywords": ["index", "match", "flexible", "left lookup"]
+  },
+  {
+    "level": "intermediate",
+    "question": "What does the COUNTIF function do?",
+    "keywords": ["countif", "criteria", "range", "condition"]
+  },
+  {
+    "level": "intermediate",
+    "question": "Explain conditional formatting and give an example use case.",
+    "keywords": ["conditional formatting", "highlight", "rules", "color"]
+  },
+  {
+    "level": "intermediate",
+    "question": "How do you use the IF function to create logical tests in Excel?",
+    "keywords": ["if", "logical test", "condition", "true false"]
+  },
+  {
+    "level": "intermediate",
+    "question": "What is the purpose of data validation in Excel and how do you set it up?",
+    "keywords": ["data validation", "dropdown", "restrict", "input"]
+  },
+  {
+    "level": "intermediate",
+    "question": "How do you use the SUMIF and SUMIFS functions?",
+    "keywords": ["sumif", "sumifs", "conditional sum", "multiple criteria"]
+  },
+  {
+    "level": "intermediate",
+    "question": "What are named ranges and how do they improve spreadsheet usability?",
+    "keywords": ["named ranges", "define name", "formula", "readability"]
+  },
+  {
+    "level": "advanced",
+    "question": "How do you create and use a Pivot Table in Excel?",
+    "keywords": ["pivot table", "rows", "columns", "values", "summarize"]
+  },
+  {
+    "level": "advanced",
+    "question": "What is the purpose of Excel Macros and how do you record one?",
+    "keywords": ["macro", "automation", "record", "vba"]
+  },
+  {
+    "level": "advanced",
+    "question": "How would you handle duplicate records in a dataset using Excel?",
+    "keywords": ["remove duplicates", "filter", "unique", "data cleanup"]
+  },
+  {
+    "level": "advanced",
+    "question": "What is Power Query in Excel used for?",
+    "keywords": ["power query", "data transform", "clean", "merge"]
+  },
+  {
+    "level": "advanced",
+    "question": "How do array formulas work and when should they be used?",
+    "keywords": ["array formulas", "ctrl shift enter", "multiple calculations"]
+  },
+  {
+    "level": "advanced",
+    "question": "What are the benefits of using Excel Tables versus regular data ranges?",
+    "keywords": ["excel tables", "structured references", "auto-expand", "formatting"]
+  },
+  {
+    "level": "advanced",
+    "question": "How can you use the INDIRECT function for dynamic cell references?",
+    "keywords": ["indirect", "dynamic reference", "text reference"]
+  },
+  {
+    "level": "advanced",
+    "question": "What is the XLOOKUP function and how does it improve upon VLOOKUP?",
+    "keywords": ["xlookup", "modern", "flexible", "default value"]
+  },
+  {
+    "level": "advanced",
+    "question": "How do you create dynamic dashboards with slicers and timelines?",
+    "keywords": ["dashboard", "slicers", "timelines", "interactive"]
+  },
+  {
+    "level": "advanced",
+    "question": "What are the key differences between Power Pivot and regular Pivot Tables?",
+    "keywords": ["power pivot", "data model", "relationships", "dax"]
+  }
+]
