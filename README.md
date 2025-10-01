@@ -66,7 +66,7 @@ GEMINI_API_KEY=your_gemini_api_key_here
 
 ## 📋 Request/Response Examples
 
-# ▶️ Start Interview
+## ▶️ Start Interview
 
 ```bash
 curl -X POST "http://localhost:8000/start_interview?session_id=123"
@@ -77,7 +77,7 @@ curl -X POST "http://localhost:8000/start_interview?session_id=123"
   "first_question": "What does the SUM function do in Excel?"
 }
 ```
-# 📝 Submit Answer
+## 📝 Submit Answer
 ```bash
 curl -X POST "http://localhost:8000/next_question" \
   -H "Content-Type: application/json" \
@@ -86,7 +86,7 @@ curl -X POST "http://localhost:8000/next_question" \
     "answer": "SUM adds numbers in a range"
   }'
 ```
-# 📚 Question Bank Structure
+## 📚 Question Bank Structure
 Questions are stored in questions.json with the following format:
 
 ```bash
@@ -99,7 +99,7 @@ Questions are stored in questions.json with the following format:
 ]
 ```
 
-##🎯 Evaluation System
+## 🎯 Evaluation System
 #Hybrid Scoring
 Keyword Matching: Rule-based scoring using predefined keywords
 Semantic Analysis: AI-powered understanding of answer quality
@@ -112,12 +112,12 @@ Combined Score: Weighted combination for final evaluation
 * AI-generated recommendations
 * Professional formatting
 
-##💻 Development
+## 💻 Development
 Running Locally
 ```bash
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-##API Documentation
+## API Documentation
 Swagger UI → [http://localhost:8000/docs](url)
 ReDoc → [http://localhost:8000/redoc](url)
