@@ -58,22 +58,18 @@ def next_question(req: AnswerRequest):
     """
     gemini_resp = model.generate_content(prompt)
     
-    print("Gemini Response:", gemini_resp.text)  # Debugging line
-    # Parse Gemini response safely
+    # print("Gemini Response:", gemini_resp.text)  # Debugging line
+    # Parsing Gemini response 
     import json as pyjson
     try:
-        # Clean the response - remove any markdown code blocks and trailing commas
         cleaned_response = gemini_resp.text.strip()
         
-        # Remove ```json and ``` markers if present
         if cleaned_response.startswith('```json'):
             cleaned_response = cleaned_response[7:]
         if cleaned_response.endswith('```'):
             cleaned_response = cleaned_response[:-3]
         cleaned_response = cleaned_response.strip()
         
-        # Remove trailing commas before closing braces
-        import re
         cleaned_response = re.sub(r',\s*}', '}', cleaned_response)
         cleaned_response = re.sub(r',\s*]', ']', cleaned_response)
         
@@ -81,11 +77,9 @@ def next_question(req: AnswerRequest):
         gemini_score = gemini_eval.get("score", 0)
         reasoning = gemini_eval.get("reasoning", "")
         
-        print(f"Parsed successfully - Score: {gemini_score}, Reasoning: {reasoning}")
         
     except Exception as e:
         print(f"JSON parsing error: {e}")
-        print(f"Cleaned response that failed: {cleaned_response}")
         
         # Fallback: Try to extract score and reasoning with regex
         try:
@@ -94,13 +88,13 @@ def next_question(req: AnswerRequest):
             
             gemini_score = int(score_match.group(1)) if score_match else 0
             reasoning = reasoning_match.group(1) if reasoning_match else "Could not parse Gemini response"
-            print(f"Fallback parsing - Score: {gemini_score}, Reasoning: {reasoning}")
+            # print(f"Fallback parsing - Score: {gemini_score}, Reasoning: {reasoning}")
         except:
             gemini_score, reasoning = 0, "Could not parse Gemini response"
-            print("Fallback parsing also failed")
+            # print("Fallback parsing also failed")
 
-    # Combine scores (simple sum, max 6 points)
-    total_score = gemini_score
+    # Combining scores (simple sum, max 6 points)
+    total_score = gemini_score + keyword_score
 
     session["score"] += total_score
     session["answers"].append({
@@ -109,9 +103,9 @@ def next_question(req: AnswerRequest):
         "keyword_score": keyword_score,
         "gemini_score": gemini_score,
         "reasoning": reasoning,
-        "level": current_q["level"],  # Store the level
+        "level": current_q["level"],  
         "total_score": total_score,
-        "keywords": current_q["keywords"]  # Store keywords for reference
+        "keywords": current_q["keywords"] 
     })
 
     session["current"] += 1
@@ -124,10 +118,9 @@ def next_question(req: AnswerRequest):
 @app.get("/feedback")
 def feedback(session_id: str):
     session = sessions[session_id]
-    total_possible = len(session["questions"]) * 3  # 3 = max gemini score per Q
+    total_possible = len(session["questions"]) * 3  
     percentage = (session["score"] / total_possible) * 100
     
-    # Determine performance level
     if percentage >= 80:
         performance = "Excellent"
         strengths = "Strong conceptual understanding, good practical knowledge"
@@ -311,11 +304,9 @@ def download_report(session_id: str, user_name: str = "", user_email: str = "", 
         story.append(Paragraph(f"<b>Evaluation Reasoning:</b> {answer['reasoning']}", styles["Normal"]))
         story.append(Spacer(1, 0.2*inch))
     
-    # Generate AI-powered recommendations using Gemini
     story.append(Paragraph("AI-Powered Recommendations", styles["Heading2"]))
 
     try:
-        # Prepare data for Gemini analysis
         performance_summary = {
             "total_score": session["score"],
             "total_possible": total_possible,
@@ -325,7 +316,6 @@ def download_report(session_id: str, user_name: str = "", user_email: str = "", 
             "detailed_scores": session["answers"]
         }
         
-        # Create prompt for Gemini with strict formatting requirements
         recommendations_prompt = f"""
         You are an Excel skills assessment expert. Based on the following performance data, provide personalized recommendations for improvement.
 
@@ -362,36 +352,34 @@ def download_report(session_id: str, user_name: str = "", user_email: str = "", 
         recommendations_text = gemini_recommendations_resp.text.strip()
         print("Raw Gemini recommendations:", recommendations_text)  # Debug
         
-        # Remove any markdown formatting if present
         if recommendations_text.startswith('```'):
             recommendations_text = recommendations_text.split('```')[1].strip()
             if recommendations_text.startswith('markdown'):
                 recommendations_text = recommendations_text[8:].strip()
         
         # Clean the text - remove asterisks and other markdown
-        recommendations_text = re.sub(r'\*\*', '', recommendations_text)  # Remove bold
-        recommendations_text = re.sub(r'\*', '', recommendations_text)   # Remove italics and bullets
-        recommendations_text = re.sub(r'#+\s*', '', recommendations_text) # Remove headings
+        recommendations_text = re.sub(r'\*\*', '', recommendations_text)
+        recommendations_text = re.sub(r'\*', '', recommendations_text) 
+        recommendations_text = re.sub(r'#+\s*', '', recommendations_text)
         
-        # Split into individual recommendations and clean each one
+        
         recommendations_list = []
         for line in recommendations_text.split('\n'):
             line = line.strip()
             
-            # Skip empty lines and lines that look like headers
+            
             if not line:
                 continue
             if line.lower().startswith(('start with', 'focus:', 'resources:', 'example format:', 'formatting requirements:')):
                 continue
                 
-            # Clean the line and add bullet point if needed
-            line = re.sub(r'^[•\-*\d.]+\s*', '', line)  # Remove existing bullets/numbers
+            
+            line = re.sub(r'^[•\-*\d.]+\s*', '', line) 
             line = line.strip()
             
-            if line and len(line) > 10:  # Only add substantial lines
-                # If line is too long, split into multiple points
+            if line and len(line) > 10: 
                 if len(line) > 150:
-                    # Try to split on common separators
+                    
                     sentences = re.split(r'[.:]', line)
                     for sentence in sentences:
                         sentence = sentence.strip()
@@ -400,23 +388,23 @@ def download_report(session_id: str, user_name: str = "", user_email: str = "", 
                 else:
                     recommendations_list.append(line)
         
-        # Remove duplicates and ensure reasonable length
+       
         unique_recommendations = []
         seen = set()
         for rec in recommendations_list:
-            # Take first 100 chars as key to avoid near-duplicates
+            
             key = rec[:100].lower()
             if key not in seen and len(rec) > 15:
                 seen.add(key)
                 unique_recommendations.append(rec)
         
-        # Limit to 6 recommendations maximum
+       
         unique_recommendations = unique_recommendations[:6]
         
-        # Add recommendations to PDF with proper formatting
+        
         if unique_recommendations:
             for rec in unique_recommendations:
-                # Ensure the recommendation starts with a capital letter and ends properly
+               
                 rec = rec.strip()
                 if rec and not rec[0].isupper():
                     rec = rec[0].upper() + rec[1:]
@@ -425,12 +413,12 @@ def download_report(session_id: str, user_name: str = "", user_email: str = "", 
                     
                 story.append(Paragraph(f"• {rec}", styles["Normal"]))
         else:
-            # Fallback if no recommendations were parsed
+           
             raise Exception("No recommendations parsed")
             
     except Exception as e:
         print(f"Error generating AI recommendations: {e}")
-        # Fallback to basic recommendations
+        
         story.append(Paragraph("Based on your performance, we recommend:", styles["Normal"]))
         if percentage < 60:
             fallback_recs = [
@@ -454,12 +442,12 @@ def download_report(session_id: str, user_name: str = "", user_email: str = "", 
         for rec in fallback_recs:
             story.append(Paragraph(f"• {rec}", styles["Normal"]))
 
-    # Additional personalized section based on weak areas
+    
     story.append(Spacer(1, 0.2*inch))
     story.append(Paragraph("Focus Areas for Development", styles["Heading3"]))
 
     try:
-        # Identify weak areas from the answers
+        
         weak_answers = [ans for ans in session["answers"] if ans['total_score'] < 2]
         if weak_answers:
             weak_topics = list(set([ans.get('level', 'General') for ans in weak_answers]))
@@ -481,7 +469,7 @@ def download_report(session_id: str, user_name: str = "", user_email: str = "", 
             focus_text = focus_resp.text.strip()
             
             # Clean the response
-            focus_text = re.sub(r'[*#]', '', focus_text)  # Remove markdown
+            focus_text = re.sub(r'[*#]', '', focus_text)  
             if focus_text.startswith('```'):
                 focus_text = focus_text.split('```')[1].strip()
             
@@ -489,14 +477,14 @@ def download_report(session_id: str, user_name: str = "", user_email: str = "", 
             for line in focus_text.split('\n'):
                 line = line.strip()
                 if line and len(line) > 15 and not line.lower().startswith('example'):
-                    # Remove existing bullets and clean
+                    
                     line = re.sub(r'^[•\-*\d.]+\s*', '', line)
                     line = line.strip()
                     if line:
                         focus_points.append(line)
             
-            # Add focus points to PDF
-            for point in focus_points[:3]:  # Limit to 3 points
+           
+            for point in focus_points[:3]: 
                 if point:
                     story.append(Paragraph(f"• {point}", styles["Normal"]))
         else:
