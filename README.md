@@ -119,5 +119,5 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ## API Documentation
-Swagger UI → [http://localhost:8000/docs](url)
-ReDoc → [http://localhost:8000/redoc](url)
+* Swagger UI → [http://localhost:8000/docs](url)
+* ReDoc → [http://localhost:8000/redoc](url)
